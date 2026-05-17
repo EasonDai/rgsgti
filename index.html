@@ -1,0 +1,583 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
+
+:root { --bg: #f9f6f5; --panel: #ffffff; --text: #1e1a1a; --muted: #7a6f6f; --line: #e5ddd9; --soft: #fdf2f0; --accent: #c0392b; --accent-strong: #922b21; --shadow: 0 16px 40px rgba(73, 47, 47, 0.08); --radius: 22px; }
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: radial-gradient(circle at left top, #faf8f7 0%, #f9f6f5 36%, #f5f2f0 100%); color: var(--text); min-height: 100vh; }
+
+.shell { max-width: 980px; margin: 0 auto; padding: 24px 16px 56px; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+.hero { padding: 28px; margin-top: 20px; overflow: hidden; position: relative; }
+
+.hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; border-radius: 50%; background: linear-gradient(rgba(192, 57, 43, 0.15), rgba(192, 57, 43, 0.02)); pointer-events: none; }
+
+h1, h2, h3, p { margin: 0; }
+
+.hero-minimal { min-height: 48vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 42px 20px; }
+
+.hero-minimal::after { display: none; }
+
+.hero-minimal h1 { font-size: clamp(28px, 5vw, 52px); line-height: 1.08; letter-spacing: -0.03em; }
+
+.hero-actions-single { display: flex; justify-content: center; margin-top: 28px; }
+
+button { border: 0; cursor: pointer; transition: transform 0.16s, box-shadow 0.16s, opacity 0.16s; font: inherit; }
+
+button:hover { transform: translateY(-1px); }
+
+button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+.btn-primary { background: var(--accent-strong); color: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 12px 30px rgba(146, 43, 33, 0.18); font-weight: 700; }
+
+.btn-secondary { background: #fff; color: var(--accent-strong); padding: 14px 20px; border-radius: 14px; border: 1px solid var(--line); font-weight: 700; }
+
+.screen { display: none; }
+
+.screen.active { display: block; }
+
+.test-wrap, .result-wrap { margin-top: 22px; padding: 22px; }
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+
+.progress { flex: 1 1 0%; min-width: 240px; height: 10px; background: #f0e8e6; border-radius: 999px; overflow: hidden; }
+
+.progress > span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #e07065, #922b21); border-radius: inherit; transition: width 0.22s; }
+
+.progress-text { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+.question-list { display: grid; gap: 16px; }
+
+.question { border: 1px solid var(--line); border-radius: 18px; padding: 18px; background: linear-gradient(#fff, #fffcfb); }
+
+.question-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; color: var(--muted); font-size: 12px; }
+
+.badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 10px; background: var(--soft); border: 1px solid var(--line); }
+
+.question-title { font-size: 16px; line-height: 1.7; white-space: pre-wrap; }
+
+.options { display: grid; gap: 10px; margin-top: 14px; }
+
+.option { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: #fff; transition: border-color 0.16s, background 0.16s, transform 0.16s; }
+
+.option:hover { border-color: #d4b3af; background: #fef9f8; }
+
+.option input { margin-top: 3px; accent-color: var(--accent-strong); transform: scale(1.1); flex-shrink: 0; }
+
+.option-code { font-weight: 800; color: var(--accent-strong); min-width: 22px; }
+
+.actions-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; padding-top: 6px; }
+
+.hint { color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+.result-layout { display: grid; gap: 18px; }
+
+.result-top { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; align-items: stretch; }
+
+.poster-box, .type-box, .analysis-box, .dim-box, .note-box { border: 1px solid var(--line); border-radius: 18px; padding: 18px; background: linear-gradient(#fff, #fffcfb); }
+
+.poster-box { display: grid; grid-template-rows: 1fr auto; min-height: 280px; overflow: hidden; position: relative; background: radial-gradient(circle at right top, rgba(192, 57, 43, 0.12), rgba(192, 57, 43, 0) 40%), linear-gradient(#fff, #fef9f8); }
+
+.poster-box::after { content: ""; position: absolute; right: -46px; bottom: -46px; width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(rgba(192, 57, 43, 0.1), rgba(192, 57, 43, 0.01)); pointer-events: none; }
+
+/* 优化后的图片样式（不变形+阴影） */
+.poster-image {
+  width: 100%;
+  height: 100%;
+  max-height: 460px;
+  object-fit: cover; /* 图片填满容器并保持比例，不会变形 */
+  border-radius: 14px;
+  background: rgba(255,255,255,0.75);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 24px rgba(73, 47, 47, 0.1);
+}
+
+.poster-caption { margin-top: 14px; color: var(--muted); font-size: 14px; line-height: 1.8; position: relative; z-index: 1; text-align: center; }
+
+.type-kicker { font-size: 12px; color: var(--accent-strong); margin-bottom: 8px; letter-spacing: 0.06em; }
+
+.type-name { font-size: clamp(30px, 5vw, 48px); line-height: 1.08; letter-spacing: -0.03em; }
+
+.type-subname { margin-top: 10px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+.match { margin-top: 18px; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 10px 14px; background: var(--soft); border: 1px solid var(--line); color: var(--accent-strong); font-weight: 700; font-size: 14px; }
+
+.analysis-box h3, .dim-box h3, .note-box h3 { font-size: 16px; margin-bottom: 12px; }
+
+.analysis-box p { margin: 0; color: #302824; font-size: 15px; line-height: 1.9; white-space: pre-wrap; }
+
+.dim-list { display: grid; gap: 12px; }
+
+.dim-item { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; }
+
+.dim-item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+
+.dim-item-name { font-size: 14px; font-weight: 700; color: var(--text); }
+
+.dim-item-score { color: var(--accent-strong); font-weight: 800; font-size: 14px; white-space: nowrap; }
+
+.dim-item p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+
+.note-box p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+
+.author-box { border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(#fff, #fffcfb); overflow: hidden; }
+
+.author-box summary { list-style: none; cursor: pointer; padding: 18px; font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.author-box summary::-webkit-details-marker { display: none; }
+
+.author-box summary::after { content: "展开"; font-size: 12px; font-weight: 700; color: var(--accent-strong); border: 1px solid var(--line); background: var(--soft); padding: 6px 10px; border-radius: 999px; flex-shrink: 0; }
+
+.author-box[open] summary::after { content: "收起"; }
+
+.author-content { border-top: 1px solid var(--line); padding: 0 18px 18px; }
+
+.author-content p { margin: 14px 0 0; color: #302824; font-size: 14px; line-height: 1.9; }
+
+.result-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+
+@media (max-width: 860px) {
+  .result-top { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .shell { padding: 14px 12px 42px; }
+  .hero, .test-wrap, .result-wrap { padding: 16px; }
+  .hero-minimal h1 { font-size: 32px; }
+  .question-title { font-size: 15px; }
+}</style>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RGSG 校园人格图鉴</title>
+  <meta name="description" content="MBTI已经过时了，RGSG校园人格来了。12道题测出你是校内哪位老师同学显眼包。">
+  <meta property="og:title" content="RGSG 校园人格图鉴">
+  <meta property="og:description" content="MBTI已经过时了，RGSG校园人格来了。12道题测出你是校内哪位老师同学显眼包。">
+  <meta property="og:image" content="">
+  <meta property="og:url" content="">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+</head>
+<body>
+  <div class="shell">
+    <section id="intro" class="screen active">
+      <div class="hero card hero-minimal">
+        <h1>MBTI已经过时了。<br>RGSG 校园人格来了。</h1>
+        <p style="margin-top:14px; color:var(--muted); font-size:15px;">测测你是我校哪个老师 / 同学 / 书院的显眼包？12 题出结果。</p>
+        <div class="hero-actions-single">
+          <button id="startBtn" class="btn-primary">开始测试</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="test" class="screen">
+      <div class="test-wrap card">
+        <div class="topbar">
+          <div class="progress"><span id="progressBar"></span></div>
+          <div class="progress-text" id="progressText">0 / 12</div>
+        </div>
+
+        <div id="questionList" class="question-list"></div>
+
+        <div class="actions-bottom">
+          <div class="hint" id="testHint">全部答完才能提交哦～</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="backIntroBtn" class="btn-secondary">返回首页</button>
+            <button id="submitBtn" class="btn-primary" disabled>提交查看结果</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="result" class="screen">
+      <div class="result-wrap card">
+        <div class="result-layout">
+          <div class="result-top">
+            <div class="poster-box" id="posterBox">
+              <img id="posterImage" class="poster-image" alt="人格结果图">
+              <div id="posterCaption" class="poster-caption"></div>
+            </div>
+
+            <div class="type-box">
+              <div class="type-kicker" id="resultModeKicker">你的 RGSG 校园人格</div>
+              <div class="type-name" id="resultTypeName"></div>
+              <div class="match" id="matchBadge"></div>
+              <div class="type-subname" id="resultTypeSub"></div>
+            </div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>人格解读</h3>
+            <p id="resultDesc"></p>
+          </div>
+
+          <details class="author-box">
+            <summary>八维度评分</summary>
+            <div class="author-content" style="padding-top:14px;">
+              <div id="dimList" class="dim-list"></div>
+            </div>
+          </details>
+
+          <div class="note-box">
+            <h3>友情提示</h3>
+            <p id="funNote"></p>
+          </div>
+
+          <div class="author-box" style="padding:18px;">
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 14px 0;">关于本测试</h3>
+            <div style="color:#302824; font-size:14px; line-height:1.9;">
+              <p style="margin:0 0 14px 0;">本测试为 RGSG 专属校园MBTI，纯属娱乐，与官方评价无关。</p>
+              <p style="margin:0 0 14px 0;">结果仅供同学间调侃、整活、互黑使用。</p>
+              <p style="margin:0 0 14px 0;">如有过于真实，那说明你真的很像这位老师 / 同学。</p>
+              <p style="margin:0;">信息调研由 ChatGPT Deep Research 完成；图片生成由 Nano Banana Pro 完成；代码由 Claude Code Opus 4.6 完成。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-actions" style="flex-direction:column; align-items:stretch;">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="restartBtn" class="btn-secondary">重新测试</button>
+            <button id="toTopBtn" class="btn-secondary">回到首页</button>
+            <button id="contactBtn" class="btn-secondary">联系作者</button>
+          </div>
+          <div id="contactPanel" style="display:none; margin-top:16px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(#fff,#fffcfb); padding:18px; text-align:center;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:480px; margin:0 auto;">
+              <div>
+                <p style="font-size:13px; color:var(--muted); margin:0 0 10px 0; font-weight:700;">微信</p>
+                <img src="./AuthorContact-Wechat.jpg" alt="微信联系方式" style="width:100%; border-radius:12px; border:1px solid var(--line);">
+              </div>
+              <div>
+                <p style="font-size:13px; color:var(--muted); margin:0 0 10px 0; font-weight:700;">小红书</p>
+                <img src="./AuthorContact-RedNote.jpg" alt="小红书联系方式" style="width:100%; border-radius:12px; border:1px solid var(--line);">
+              </div>
+            </div>
+            <div id="contactClose" style="margin-top:14px; cursor:pointer; color:var(--muted); font-size:12px;">收起 ▲</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // 所有可能的人格类型
+    const TYPE_LIBRARY = {
+      'BKHM': { code: 'BKHM', cn: '白金汉书院', intro: '别怕，有我在！', desc: `你是勇敢无畏的白金汉人，热情冲动、正义感爆棚。在校园里永远是第一个站出来保护弱小的人，运动会上的绝对主力，班级活动的积极组织者。你行动力超强，想到什么就立刻去做，但有时会因为过于鲁莽而犯错。你天生具有领导力，同学们都愿意跟着你一起干。虽然有时候脾气有点急，但大家都知道你是刀子嘴豆腐心。` },
+      'HMOD': { code: 'HMOD', cn: '哈蒙德书院', intro: '让我想想，应该有更好的方法。', desc: `你是聪明睿智的哈蒙德人，逻辑清晰、求知欲强。是校园里公认的学霸，各种竞赛的常客。你喜欢独立思考，不喜欢随波逐流，总能从不同角度看问题。虽然有时候看起来有点孤僻，不擅长表达情感，但其实你内心非常善良。当别人遇到难题时，你总能给出最理性的解决方案。` },
+      'AUST': { code: 'AUST', cn: '奥斯汀书院', intro: '没关系，我来帮你。', desc: `你是善良温暖的奥斯汀人，踏实可靠、乐于助人。是班级里的粘合剂，总是默默为大家付出。你有超强的耐心和责任心，老师交给你的任务永远不用担心会搞砸。你善于倾听，是大家最好的倾诉对象。虽然有时候会过于迁就别人，容易被忽视，但你的善良大家都看在眼里。` },
+      'BKOD': { code: 'BKOD', cn: '白金汉-哈蒙德', intro: '我们不仅要做，还要做到最好！', desc: `你是智勇双全的 BKOD，既有白金汉的勇气，又有哈蒙德的智慧。是天生的领导者，学生会主席和社团负责人的不二人选。你善于制定计划并严格执行，能在关键时刻做出正确决策。你对自己和他人都有很高的要求，追求完美。虽然有时候会显得有点强势，但你的能力让所有人都信服。` },
+      'BKST': { code: 'BKST', cn: '白金汉-奥斯汀', intro: '大家一起上，肯定没问题！', desc: `你是热情友善的 BKST，既有白金汉的行动力，又有奥斯汀的温暖。是班级里的文体委员和开心果，总能带动大家的情绪。你人缘极好，走到哪里都有朋友。你乐于助人且敢于行动，当别人需要帮助时，你总是第一个伸出援手。虽然有时候会过于感情用事，但你的真诚打动了所有人。` },
+      'HMST': { code: 'HMST', cn: '哈蒙德-奥斯汀', intro: '我理解你的感受，我们可以一起解决。', desc: `你是温柔智慧的 HMST，既有哈蒙德的理性，又有奥斯汀的同理心。是班级里的学习委员和心理委员，既能帮大家解决学习上的问题，又能安抚大家的情绪。你善于调解矛盾，是天生的和平使者。虽然有时候会过于犹豫，不敢表达自己的真实想法，但你的善良和智慧让你深受大家喜爱。` },
+      'BKHMST': { code: 'BKHMST', cn: '三院合一', intro: '我相信我们每个人都能做到最好。', desc: `恭喜你！你是集三大书院优点于一身的完美人格。既有白金汉的勇气，又有哈蒙德的智慧，还有奥斯汀的温暖。你是校园里的风云人物，全能型学生，老师的得力助手。你能在各种场合游刃有余，深受大家的喜爱和尊敬。虽然有时候会过于追求完美，给自己太大压力，但你总能调整好自己，继续前进。` },
+      'RGSG': { code: 'RGSG', cn: 'RGSG学校', intro: '今天我以 RGSG 为荣，明天 RGSG 以我为荣！', desc: `你是典型的 RGSG 人，包容开放、多元发展、追求卓越。你适应能力强，能融入各种环境，有强烈的集体荣誉感。你热爱学校，积极参加各种校园活动。虽然有时候看起来有点普通，缺乏个性，但你一直在默默努力，不断进步。你是学校最坚实的基础，也是学校未来的希望。` },
+      'LWYY': { code: 'LWYY', cn: '数学老师', intro: '这道题还有更简便的解法。', desc: `你是逻辑严谨的 LWYY 型人格，思维敏捷、一丝不苟。数学天赋极高，对数字特别敏感。你做事有条理，注重细节，追求精确。虽然有时候会显得有点刻板，不擅长表达情感，但你内心非常关心学生。你总能用最简单的方法解决最复杂的问题，是大家心中的数学大神。` },
+      'ALSA': { code: 'ALSA', cn: '英语老师', intro: '语言是通往世界的桥梁。', desc: `你是浪漫文艺的 ALSA 型人格，语言天赋高、视野开阔。英语流利，有很高的文学素养。你善于表达，沟通能力强，有国际视野。虽然有时候会过于感性，容易多愁善感，但你总能用优美的语言打动人心。你热爱生活，喜欢分享世界各地的文化，是大家了解世界的窗口。` },
+      'WUHAO': { code: 'WUHAO', cn: '校长', intro: '教育是最好的投资。', desc: `你是远见卓识的 WUHAO 型人格，有商业头脑、慷慨大方。你有很强的领导力和规划能力，善于整合资源。你重视人才，愿意为教育事业投入大量的时间和金钱。虽然有时候会过于忙碌，与学生距离较远，但你一直致力于为大家创造更好的学习环境。你是学校的掌舵人，带领大家不断前进。` },
+      'MATN': { code: 'MATN', cn: '外教', intro: "Let's do some sports!", desc: `你是阳光开朗的 MATN 型人格，身强力壮、精力充沛。热爱运动，身体素质极好。你性格直爽，幽默风趣，充满活力。虽然有时候会过于冲动，做事不够细心，但你总能给大家带来欢乐。你喜欢和学生打成一片，是大家最喜欢的老师之一。` },
+      'HARY': { code: 'HARY', cn: '同学', intro: '我有一个好主意！', desc: `你是机灵活泼的 HARY 型人格，鬼点子多、反应快。好奇心强，对什么都感兴趣。你聪明伶俐，学习能力强，但有时候注意力不集中，做事三分钟热度。你是班级里的开心果，总能想出各种有趣的点子逗大家开心。虽然有时候会有点调皮，但大家都很喜欢你。` },
+      'BOBO': { code: 'BOBO', cn: '地理老师/班主任', intro: '读万卷书，行万里路。', desc: `你是脚踏实地的 BOBO 型人格，见多识广、有责任心。地理知识丰富，了解各地的风土人情。你做事踏实，关心学生，是非常负责任的班主任。虽然有时候会有点唠叨，对学生要求严格，但你所做的一切都是为了学生好。你鼓励大家多出去看看，增长见识。` },
+      'JALI': { code: 'JALI', cn: '历史老师/班主任', intro: '以史为鉴，可以知兴替。', desc: `你是博学多才的 JALI 型人格，沉稳内敛、善于思考。历史知识渊博，看问题有深度。你有耐心，善于讲故事，能把枯燥的历史讲得生动有趣。虽然有时候会显得有点严肃，思想比较传统，但你内心非常关心学生。你教会大家从历史中吸取教训，更好地面对未来。` },
+      'SHWN': { code: 'SHWN', cn: '小初部主任', intro: '细节决定成败。', desc: `你是认真负责的 SHWN 型人格，严格要求、注重细节。有很强的管理能力，做事有条理。你工作认真，关心低年级学生，是他们的保护者。虽然有时候会过于严厉，不苟言笑，给人距离感，但你所做的一切都是为了让学生养成良好的习惯。你是学校管理的中坚力量。` }
+    };
+
+    // 维度元数据
+    const dimensionMeta = {
+      D1: { name: '勇气指数', group: '书院特质' },
+      D2: { name: '智慧指数', group: '书院特质' },
+      D3: { name: '温暖指数', group: '书院特质' },
+      D4: { name: '严谨指数', group: '工作态度' },
+      D5: { name: '活力指数', group: '性格特点' },
+      D6: { name: '文艺指数', group: '兴趣爱好' },
+      D7: { name: '商业头脑', group: '能力特长' },
+      D8: { name: '管理能力', group: '领导才能' }
+    };
+
+    // 维度解释
+    const DIM_EXPLANATIONS = {
+      D1: { L: '偏谨慎，三思而后行', M: '平衡型，有勇有谋', H: '超勇敢，敢于挑战一切' },
+      D2: { L: '偏实践，注重动手能力', M: '平衡型，理论实践结合', H: '超智慧，逻辑思维超强' },
+      D3: { L: '偏独立，不喜欢麻烦别人', M: '平衡型，既独立又友善', H: '超温暖，乐于助人' },
+      D4: { L: '偏随性，不拘小节', M: '平衡型，张弛有度', H: '超严谨，注重细节' },
+      D5: { L: '偏安静，喜欢独处', M: '平衡型，动静皆宜', H: '超活力，精力充沛' },
+      D6: { L: '偏理性，喜欢理科', M: '平衡型，文理兼修', H: '超文艺，热爱文学艺术' },
+      D7: { L: '偏理想主义，不看重金钱', M: '平衡型，理想现实兼顾', H: '超有商业头脑，善于理财' },
+      D8: { L: '偏自由，不喜欢被管理', M: '平衡型，能管理也能被管理', H: '超有管理能力，天生领导者' }
+    };
+
+    // 题目列表
+    const questions = [
+      { id: 'q1', text: '当班级遇到困难时，你会怎么做？', options: [
+          { label: '挺身而出，带领大家解决问题', value: 3 },
+          { label: '冷静分析，找出最佳解决方案', value: 2 },
+          { label: '默默支持，尽自己所能帮助大家', value: 1 }
+      ]},
+      { id: 'q2', text: '周末你更喜欢做什么？', options: [
+          { label: '在家看书或学习新知识', value: 3 },
+          { label: '和朋友一起去运动或冒险', value: 2 },
+          { label: '和家人一起度过温馨的时光', value: 1 }
+      ]},
+      { id: 'q3', text: '当朋友向你倾诉烦恼时，你会？', options: [
+          { label: '耐心倾听，给予安慰', value: 3 },
+          { label: '理性分析，给出建议', value: 2 },
+          { label: '带他去玩，转移注意力', value: 1 }
+      ]},
+      { id: 'q4', text: '你的书桌通常？', options: [
+          { label: '非常整齐，强迫症', value: 3 },
+          { label: '乱中有序，能找到', value: 2 },
+          { label: '乱到自己都害怕', value: 1 }
+      ]},
+      { id: 'q5', text: '你在课堂上通常是？', options: [
+          { label: '积极举手发言，活跃气氛', value: 3 },
+          { label: '认真听讲，偶尔回答问题', value: 2 },
+          { label: '默默听课，不怎么说话', value: 1 }
+      ]},
+      { id: 'q6', text: '你更擅长以下哪种学科？', options: [
+          { label: '英语和语文', value: 3 },
+          { label: '数学和物理', value: 2 },
+          { label: '历史和地理', value: 1 }
+      ]},
+      { id: 'q7', text: '如果让你组织一次班级活动，你会？', options: [
+          { label: '精打细算，控制好预算', value: 3 },
+          { label: '注重创意，让活动更有趣', value: 2 },
+          { label: '确保每个人都能参与进来', value: 1 }
+      ]},
+      { id: 'q8', text: '当有人违反规则时，你会？', options: [
+          { label: '立即指出并要求改正', value: 3 },
+          { label: '假装没看见', value: 1 },
+          { label: '私下提醒他', value: 2 }
+      ]},
+      { id: 'q9', text: '面对挑战时，你的态度是？', options: [
+          { label: '兴奋，喜欢挑战自己', value: 3 },
+          { label: '谨慎，先评估风险再行动', value: 2 },
+          { label: '害怕，但会努力尝试', value: 1 }
+      ]},
+      { id: 'q10', text: '你在学习中更注重什么？', options: [
+          { label: '知识本身和思维方式', value: 3 },
+          { label: '成绩和排名', value: 2 },
+          { label: '学习的过程和与同学的合作', value: 1 }
+      ]},
+      { id: 'q11', text: '你在团队中通常扮演什么角色？', options: [
+          { label: '气氛组，负责调节氛围', value: 3 },
+          { label: '智囊，负责出谋划策', value: 2 },
+          { label: '执行者，负责完成具体任务', value: 1 }
+      ]},
+      { id: 'q12', text: '你对未来的规划是？', options: [
+          { label: '成为一个成功的企业家或领导者', value: 3 },
+          { label: '成为一个学者或科学家', value: 2 },
+          { label: '过自己喜欢的生活，开心最重要', value: 1 }
+      ]}
+    ];
+
+    // ✅ 已预填好所有人格的图片路径
+    const TYPE_IMAGES = {
+      'BKHM': './images/BKHM.jpg',
+      'HMOD': './images/HMOD.jpg',
+      'AUST': './images/AUST.jpg',
+      'BKOD': './images/BKOD.jpg',
+      'BKST': './images/BKST.jpg',
+      'HMST': './images/HMST.jpg',
+      'BKHMST': './images/BKHMST.jpg',
+      'RGSG': './images/RGSG.jpg',
+      'LWYY': './images/LWYY.jpg',
+      'ALSA': './images/ALSA.jpg',
+      'WUHAO': './images/WUHAO.jpg',
+      'MATN': './images/MATN.jpg',
+      'HARY': './images/HARY.jpg',
+      'BOBO': './images/BOBO.jpg',
+      'JALI': './images/JALI.jpg',
+      'SHWN': './images/SHWN.jpg'
+    };
+
+    const dimensionOrder = ['D1','D2','D3','D4','D5','D6','D7','D8'];
+    const app = { shuffledQuestions: [], answers: {} };
+
+    const screens = {
+      intro: document.getElementById('intro'),
+      test: document.getElementById('test'),
+      result: document.getElementById('result')
+    };
+
+    const questionList = document.getElementById('questionList');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+    const testHint = document.getElementById('testHint');
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        el.classList.toggle('active', key === name);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderQuestions() {
+      questionList.innerHTML = '';
+      app.shuffledQuestions.forEach((q, index) => {
+        const card = document.createElement('article');
+        card.className = 'question';
+        card.innerHTML = `
+          <div class="question-meta">
+            <div class="badge">第 ${index + 1} 题</div>
+          </div>
+          <div class="question-title">${q.text}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => {
+              const code = ['A', 'B', 'C'][i];
+              const checked = app.answers[q.id] === opt.value ? 'checked' : '';
+              return `
+                <label class="option">
+                  <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
+                  <div class="option-code">${code}</div>
+                  <div>${opt.label}</div>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        `;
+        questionList.appendChild(card);
+      });
+
+      questionList.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          app.answers[e.target.name] = Number(e.target.value);
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = app.shuffledQuestions.length;
+      const done = Object.keys(app.answers).length;
+      const percent = total ? (done / total) * 100 : 0;
+      progressBar.style.width = `${percent}%`;
+      progressText.textContent = `${done} / ${total}`;
+      const complete = done === total && total > 0;
+      submitBtn.disabled = !complete;
+      testHint.textContent = complete ? '可以提交啦！' : '全部答完才能提交哦～';
+    }
+
+    // 随机生成结果（核心逻辑）
+    function computeRandomResult() {
+      // 1. 随机选择一个人格类型
+      const typeKeys = Object.keys(TYPE_LIBRARY);
+      const randomKey = typeKeys[Math.floor(Math.random() * typeKeys.length)];
+      const finalType = TYPE_LIBRARY[randomKey];
+
+      // 2. 随机生成匹配度（70%-95%）
+      const similarity = Math.floor(Math.random() * 26) + 70;
+      
+      // 3. 随机生成精准命中维度数（3-7个）
+      const exact = Math.floor(Math.random() * 5) + 3;
+
+      // 4. 随机生成八维度评分
+      const levels = {};
+      const rawScores = {};
+      dimensionOrder.forEach(dim => {
+        const level = ['L', 'M', 'H'][Math.floor(Math.random() * 3)];
+        levels[dim] = level;
+        
+        // 生成对应的原始分数（看起来更真实）
+        if (dim === 'D1' || dim === 'D2' || dim === 'D5' || dim === 'D7') {
+          // 两题维度
+          rawScores[dim] = level === 'L' ? Math.floor(Math.random() * 2) + 2 :
+                          level === 'M' ? 4 :
+                          Math.floor(Math.random() * 2) + 5;
+        } else {
+          // 单题维度
+          rawScores[dim] = level === 'L' ? 1 : level === 'M' ? 2 : 3;
+        }
+      });
+
+      return {
+        rawScores,
+        levels,
+        finalType,
+        modeKicker: '你的 RGSG 校园人格',
+        badge: `匹配度 ${similarity}% · 精准命中 ${exact}/8 维`,
+        sub: '维度命中度较高，当前结果可视为你的专属校园人格画像。'
+      };
+    }
+
+    function renderDimList(result) {
+      const dimList = document.getElementById('dimList');
+      dimList.innerHTML = dimensionOrder.map(dim => {
+        const level = result.levels[dim];
+        const explanation = DIM_EXPLANATIONS[dim][level];
+        return `
+          <div class="dim-item">
+            <div class="dim-item-top">
+              <div class="dim-item-name">${dimensionMeta[dim].name}</div>
+              <div class="dim-item-score">${level} / ${result.rawScores[dim]}分</div>
+            </div>
+            <p>${explanation}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderResult() {
+      const result = computeRandomResult();
+      const type = result.finalType;
+
+      document.getElementById('resultModeKicker').textContent = result.modeKicker;
+      document.getElementById('resultTypeName').textContent = `${type.code}（${type.cn}）`;
+      document.getElementById('matchBadge').textContent = result.badge;
+      document.getElementById('resultTypeSub').textContent = result.sub;
+      document.getElementById('resultDesc').textContent = type.desc;
+      document.getElementById('posterCaption').textContent = type.intro;
+      document.getElementById('funNote').textContent = '趣味校园人格测试，仅供娱乐参考。';
+
+      // ✅ 已添加默认图片功能
+      const posterBox = document.getElementById('posterBox');
+      const posterImage = document.getElementById('posterImage');
+      // 如果没有对应图片，自动显示default.jpg
+      const imageSrc = TYPE_IMAGES[type.code] || './images/default.jpg';
+      posterImage.src = imageSrc;
+      posterImage.alt = `${type.code}（${type.cn}）`;
+      posterBox.classList.remove('no-image');
+
+      renderDimList(result);
+      showScreen('result');
+    }
+
+    function startTest() {
+      app.answers = {};
+      app.shuffledQuestions = shuffle(questions);
+      renderQuestions();
+      showScreen('test');
+    }
+
+    // 事件绑定
+    document.getElementById('startBtn').addEventListener('click', startTest);
+    document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('submitBtn').addEventListener('click', renderResult);
+    document.getElementById('restartBtn').addEventListener('click', startTest);
+    document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('contactBtn').addEventListener('click', () => {
+      document.getElementById('contactPanel').style.display = 'block';
+    });
+    document.getElementById('contactClose').addEventListener('click', () => {
+      document.getElementById('contactPanel').style.display = 'none';
+    });
+
+  </script>
+
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+  <script defer src="https://va.vercel-scripts.com/v1/speed-insights/script.js"></script>
+</body></html>
