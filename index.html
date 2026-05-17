@@ -141,6 +141,24 @@ button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
 
 .result-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
 
+/* 英语版链接样式 */
+.english-link {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.english-link a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.16s;
+}
+
+.english-link a:hover {
+  color: var(--accent);
+}
+
 @media (max-width: 860px) {
   .result-top { grid-template-columns: 1fr; }
 }
@@ -172,6 +190,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
         <div class="hero-actions-single">
           <button id="startBtn" class="btn-primary">开始测试</button>
         </div>
+        <!-- 新增英语版入口 -->
+        <p class="english-link">
+          If you want the English version, <a href="https://easondai.github.io/rgsgti.eng/" target="_blank" rel="noopener noreferrer">click here</a>
+        </p>
       </div>
     </section>
 
